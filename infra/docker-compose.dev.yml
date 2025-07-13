@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # ──────────────────  Postgres  ──────────────────
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: career_compass
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # ──────────────────  Backend API  ──────────────────
+  backend:
+    build:
+      context: ..                        # repo root (so Yarn can see all workspaces)
+      dockerfile: apps/backend/Dockerfile
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/career_compass
+      NODE_ENV: development
+    ports:
+      - "3001:3001"
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        node dist/index.js
+      "
+
+  # ──────────────────  Frontend (Vite)  ──────────────────
+  frontend:
+    build:
+      context: ..
+      dockerfile: apps/frontend/Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"          # Vite default; open http://localhost:5173
+    environment:
+      VITE_API_URL: http://backend:3001
+    volumes:
+      # Hot‑reload: host source ↔ container
+      - ./apps/frontend:/app/apps/frontend
+
+volumes:
+  db_data:

@@ -1,0 +1,24 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/frontend/tsconfig.app.json"
+        },
+        {
+            "path": "./apps/backend"
+        }
+    ],
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "strict": true,
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
