@@ -5,7 +5,7 @@ WORKDIR /app
 RUN corepack enable                        # Yarn 4 via Corepack
 
 # ── 1️⃣  copy root manifests so Yarn sees every workspace
-COPY package.json yarn.lock .yarnrc.yml .yarn/ ./
+COPY package.json yarn.lock ./
 
 # (debug) list workspaces Yarn sees
 RUN yarn workspaces list
