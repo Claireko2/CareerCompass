@@ -13,7 +13,11 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*"

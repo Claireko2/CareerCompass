@@ -1,4 +1,21 @@
+
+# Node
 node_modules/
 dist/
-.yarn/cache/
 .env
+
+# Python
+*.pyc
+__pycache__/
+*.egg-info/
+*.sqlite3
+venv/
+
+# VS Code
+.vscode/
+
+# Data files
+*.csv
+*.tsv
+raw/
+extractor/skill_alias_map.json

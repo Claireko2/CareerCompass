@@ -27,29 +27,32 @@ model Location {
   jobs      JobPosting[]
 
   @@index([city, region, country])
-  @@unique([city, region, country])
 }
 
 // ---------- JOB POSTINGS ----------
 model JobPosting {
   id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jobId         String     @unique                    
+  jobId         String     @unique                    // JSearch id
   title         String
   description   String     @db.Text
   postedAt      DateTime?
   scrapedAt     DateTime   @default(now())
   url           String
+  salaryMin     Float?
+  salaryMax     Float?
+  currency      String?
+  salaryPeriod  String?
   updatedAt     DateTime   @updatedAt
 
   // relations
   company       Company    @relation(fields: [companyId],  references: [id])
-  companyId     String     @db.Uuid
+  companyId     String
   location      Location   @relation(fields: [locationId], references: [id])
-  locationId    String     @db.Uuid
+  locationId    String
   skills        JobSkill[]
 
-  @@index([companyId])  
-  @@index([locationId]) 
+  @@index([companyId])
+  @@index([locationId])
 }
 
 // ---------- SKILLS & M:N JOIN ----------
@@ -68,12 +71,12 @@ model Skill {
 }
 
 model JobSkill {
-  jobId   String   @db.Uuid
+  jobId   String
   skillId String   @db.Uuid
 
   job     JobPosting @relation(fields: [jobId],   references: [id], onDelete: Cascade)
   skill   Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  @@id([jobId, skillId]) 
-  @@index([skillId])     
+  @@id([jobId, skillId])
+  @@index([skillId])
 }
