@@ -1,4 +1,5 @@
-import { PrismaClient } from './generated/prisma'; // if you used custom output
+//db.ts
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
@@ -19,3 +13,53 @@ model User {
   name  String
   email String  @unique
 }
+
+model JobPosting {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId         String   @unique
+  title         String
+  employer      String
+  city          String?
+  region        String?
+  country       String?
+  description   String   @db.Text
+  postedAt      DateTime
+  scrapedAt     DateTime @default(now())
+  url           String
+  minSalary     Float?
+  maxSalary     Float?
+  currency      String?
+  salaryPeriod  String?
+  updatedAt     DateTime @updatedAt
+  skills        JobSkill[]
+}
+
+model JobSkill {
+  jobId     String
+  skillId   String   @db.Uuid        
+  
+  @@id([jobId, skillId])
+  @@index([skillId])
+  
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill     Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+}
+
+model Skill {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  label       String
+  altLabels   Json?     @map("alt_labels")
+  skill_type  String?                
+  status      String?                
+  modified_at DateTime?  @db.Timestamp(6)
+  description String?
+  
+  JobSkill    JobSkill[]
+
+  @@map("esco_skills")  
+ 
+}
+
+
+
+

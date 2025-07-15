@@ -13,15 +13,24 @@
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "node-fetch": "2"
   },
   "devDependencies": {
     "@types/cors": "^2",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.13",
+    "@types/node-fetch": "2",
+    "jest": "^30.0.4",
+    "jest-fetch-mock": "^3.0.3",
     "prisma": "^6.11.1",
     "rimraf": "^6.0.1",
+    "ts-jest": "^29.4.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
