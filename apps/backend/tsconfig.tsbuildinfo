@@ -1,1 +1,1 @@
-{"root":["./src/main.ts"],"version":"5.8.3"}
+{"root":["./src/db.ts","./src/main.ts","./src/server.test.ts","./src/server.ts","./src/config/env.ts","./src/jobs/ingestjobs.ts","./src/jobs/skillclient.ts","./src/scheduler/index.ts","./src/scripts/exportskillaliasmap.ts","./src/services/companyservice.ts","./src/services/jobservice.ts","./src/services/jobskillservice.ts","./src/services/locationservice.ts","./src/utils/logger.ts","./src/utils/saverawdata.ts"],"version":"5.8.3"}

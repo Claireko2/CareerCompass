@@ -36,6 +36,10 @@ model JobPosting {
   jobId         String     @unique                    
   title         String
   description   String     @db.Text
+  qualifications   Json?
+  responsibilities Json?
+  benefits         Json?
+  
   postedAt      DateTime?
   scrapedAt     DateTime   @default(now())
   url           String

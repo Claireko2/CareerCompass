@@ -6,10 +6,10 @@ import { upsertLocation } from '../services/locationService';
 import { upsertJobPosting } from '../services/jobService';
 import { addJobSkills } from '../services/jobSkillService';
 import { skillExtractor } from './skillClient';
-import { writeFileSync } from 'node:fs';
 import { v4 as uuid } from 'uuid';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
-
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 export async function ingestJobs() {
     logger.info('Starting JSearch ingestion…');
@@ -51,15 +51,19 @@ export async function ingestJobs() {
 
             // 3) Upsert job posting
             const jobRecord = await upsertJobPosting({
+
                 jobId: job.job_id,
                 title: job.job_title,
                 description: job.job_description,
-                postedAt: job.job_posted_at_iso_date
-                    ? new Date(job.job_posted_at_iso_date)
-                    : undefined,
+                qualifications: job.job_highlights?.Qualifications ?? null,
+                responsibilities: job.job_highlights?.Responsibilities ?? null,
+                benefits: job.job_highlights?.Benefits ?? null,
+                postedAt: job.job_posted_at_datetime_utc ? new Date(job.job_posted_at_datetime_utc) : undefined,
                 url: job.job_apply_link,
                 companyId: company.id,
                 locationId: location.id,
+
+
             });
 
             // 4) Extract skills
@@ -73,6 +77,9 @@ export async function ingestJobs() {
     }
 
     logger.info('Ingestion cycle complete');
+
+    const count = await prisma.jobPosting.count();
+    logger.info(`Job postings count in DB: ${count}`);
 }
 
 if (require.main === module) {
