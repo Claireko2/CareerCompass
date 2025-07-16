@@ -1,0 +1,7 @@
+[31m[1mUsage Error[22m[39m: The nearest package directory (C:\Users\colle\Desktop\Project\JobSearch\career-compass\apps\frontend) doesn't seem to be part of the project declared in C:\Users\colle.
+
+- If C:\Users\colle isn't intended to be a project, remove any yarn.lock and/or package.json file there.
+- If C:\Users\colle is intended to be a project, it might be that you forgot to list Desktop/Project/JobSearch/career-compass/apps/frontend in its workspace configuration.
+- Finally, if C:\Users\colle is fine and you intend Desktop/Project/JobSearch/career-compass/apps/frontend to be treated as a completely separate project (not even a workspace), create an empty yarn.lock file in it.
+
+[1m$ [22myarn run [--inspect] [--inspect-brk] [-T,--top-level] [-B,--binaries-only] [--require #0] <scriptName> ...

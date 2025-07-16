@@ -1,14 +1,14 @@
 {
     "name": "career-compass",
     "private": true,
-    "packageManager": "yarn@4.9.2",
+    "packageManager": "npm@9.8.1",
     "workspaces": [
         "apps/*",
         "packages/*"
     ],
     "scripts": {
-        "build": "turbo run build",
-        "dev": "turbo run dev",
+        "build": "turbo run build --cache-dir=.turbo --no-cache",
+        "dev": "turbo run dev --cache-dir=.turbo --no-cache",
         "test": "jest"
     },
     "devDependencies": {
@@ -17,12 +17,15 @@
         "@types/pg": "^8",
         "jest": "^30.0.4",
         "jest-fetch-mock": "^3.0.3",
+        "prisma": "^6.12.0",
+        "rimraf": "^5.0.0",
         "ts-jest": "^29.4.0",
         "turbo": "^2.5.4",
         "typescript": "^5.8.3"
     },
     "dependencies": {
-        "@prisma/client": "^6.11.1",
+        "@prisma/client": "^6.12.0",
+        "axios": "^1.4.0",
         "bullmq": "^5.56.4",
         "cross-fetch": "^4.1.0",
         "dotenv": "^17.2.0",
@@ -30,7 +33,6 @@
         "node-cron": "^4.2.1",
         "node-fetch": "^3.3.2",
         "pg": "^8.16.3",
-        "pino": "^9.7.0",
-        "prisma": "^6.11.1"
+        "pino": "^9.7.0"
     }
 }
