@@ -5,74 +5,108 @@ import { upsertCompany } from '../services/companyService';
 import { upsertLocation } from '../services/locationService';
 import { upsertJobPosting } from '../services/jobService';
 import { addJobSkills } from '../services/jobSkillService';
-import { skillExtractor } from './skillClient';
-import { v4 as uuid } from 'uuid';
+import { extractSkills, CanonicalSkill } from '../utils/extractSkills';
+import { getCachedSkills } from '../utils/skillCache';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
+import pLimit from 'p-limit';  // 直接靜態 import p-limit@2
+
 const prisma = new PrismaClient();
+
+function cleanJobText(text: string): string {
+    return text
+        .replace(/<[^>]+>/g, ' ')           // Remove HTML tags
+        .replace(/[^a-zA-Z0-9\s]/g, ' ')    // Remove special characters
+        .replace(/\s+/g, ' ')               // Normalize whitespace
+        .toLowerCase()
+        .trim();
+}
 
 export async function ingestJobs() {
     logger.info('Starting JSearch ingestion…');
-    const res = await axios.get('https://jsearch.p.rapidapi.com/search', {
-        params: { query: 'data analyst', page: 1, num_pages: 1 },
-        headers: {
-            'X-RapidAPI-Key': env.JSEARCH_API_KEY,
-            'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
-        },
-        timeout: 15_000,
-    });
 
-    const jobs = res.data.data as any[];
+    const canonicalSkills: CanonicalSkill[] = await getCachedSkills();
+
+    const categories = ['software engineer', 'data scientist', 'product manager'];
 
     const rawDir = './raw';
     if (!existsSync(rawDir)) {
         mkdirSync(rawDir);
     }
 
-    // Save raw JSON for offline audit
-    writeFileSync(
-        `./raw/jsearch-${Date.now()}.json`,
-        JSON.stringify(jobs, null, 2),
-    );
-
-    console.log(`Fetched ${jobs.length} jobs from JSearch`);
-
-    for (const job of jobs) {
+    for (const category of categories) {
         try {
-            // 1) Upsert company
-            const company = await upsertCompany(job.employer_name, job.employer_website);
-
-            // 2) Upsert location
-            const location = await upsertLocation(
-                job.job_city ?? null,
-                job.job_state ?? null,
-                job.job_country
-            );
-
-            // 3) Upsert job posting
-            const jobRecord = await upsertJobPosting({
-
-                jobId: job.job_id,
-                title: job.job_title,
-                description: job.job_description,
-                qualifications: job.job_highlights?.Qualifications ?? null,
-                responsibilities: job.job_highlights?.Responsibilities ?? null,
-                benefits: job.job_highlights?.Benefits ?? null,
-                postedAt: job.job_posted_at_datetime_utc ? new Date(job.job_posted_at_datetime_utc) : undefined,
-                url: job.job_apply_link,
-                companyId: company.id,
-                locationId: location.id,
-
-
+            const res = await axios.get('https://jsearch.p.rapidapi.com/search', {
+                params: { query: category, page: 1, num_pages: 1 },
+                headers: {
+                    'X-RapidAPI-Key': env.JSEARCH_API_KEY,
+                    'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
+                },
+                timeout: 15_000,
             });
 
-            // 4) Extract skills
-            const { skill_ids } = await skillExtractor(job.job_description);
-            await addJobSkills(jobRecord.id, skill_ids.map(String));
+            const jobs = res.data.data as any[];
 
-            logger.debug(`Upserted job ${job.job_id}`);
-        } catch (err) {
-            logger.error(err, `Failed to ingest job ${job.job_id}`);
+            writeFileSync(`./raw/jsearch-${category.replace(/\s+/g, '-')}-${Date.now()}.json`, JSON.stringify(jobs, null, 2));
+
+            console.log(`Fetched ${jobs.length} jobs for category "${category}"`);
+
+            // 用 p-limit 控制並發數量
+            const limit = pLimit(5);
+
+            const tasks = jobs.map((job) =>
+                limit(async () => {
+                    const jobStart = Date.now();
+                    try {
+                        console.log(`[${job.job_id}] Starting processing`);
+
+                        const rawText = `${job.job_description ?? ''}\n${JSON.stringify(job.job_highlights ?? '')}`;
+                        const cleanedText = cleanJobText(rawText);
+
+                        console.log(`[${job.job_id}] Extracting skills`);
+                        const matchedSkills = extractSkills(cleanedText, canonicalSkills);
+                        const skillIds = matchedSkills.map(s => s.canonical_skill_id).filter(Boolean) as string[];
+
+                        console.log(`[${job.job_id}] Upserting company`);
+                        const company = await upsertCompany(job.employer_name, job.employer_website);
+
+                        console.log(`[${job.job_id}] Upserting location`);
+                        const location = await upsertLocation(
+                            job.job_city ?? null,
+                            job.job_state ?? null,
+                            job.job_country
+                        );
+
+                        console.log(`[${job.job_id}] Upserting job posting`);
+                        const jobRecord = await upsertJobPosting({
+                            jobId: job.job_id,
+                            title: job.job_title,
+                            description: job.job_description,
+                            qualifications: job.job_highlights?.Qualifications ?? null,
+                            responsibilities: job.job_highlights?.Responsibilities ?? null,
+                            benefits: job.job_highlights?.Benefits ?? null,
+                            postedAt: job.job_posted_at_datetime_utc
+                                ? new Date(job.job_posted_at_datetime_utc)
+                                : undefined,
+                            url: job.job_apply_link,
+                            company,
+                            location,
+                        });
+
+                        console.log(`[${job.job_id}] Adding job skills`);
+                        await addJobSkills(jobRecord.id, skillIds);
+
+                        const took = ((Date.now() - jobStart) / 1000).toFixed(2);
+                        console.log(`[${job.job_id}] Done in ${took}s. Skills matched: ${skillIds.length}`);
+                    } catch (err) {
+                        logger.error(err, `Failed to process job ${job.job_id}`);
+                    }
+                })
+            );
+
+            await Promise.all(tasks);
+        } catch (error) {
+            logger.error(error, `Failed to fetch jobs for category "${category}"`);
         }
     }
 
@@ -85,11 +119,11 @@ export async function ingestJobs() {
 if (require.main === module) {
     ingestJobs()
         .then(() => {
-            console.log('✅  Ingestion run finished');          // optional
+            console.log('✅ Ingestion run finished');
             process.exit(0);
         })
         .catch((err) => {
-            console.error('❌  Ingestion failed:', err);
+            console.error('❌ Ingestion failed:', err);
             process.exit(1);
         });
 }
