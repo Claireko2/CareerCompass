@@ -3,24 +3,50 @@ import dotenv from 'dotenv';
 import express from 'express';
 import resumeRouter from './routes/resumeUpload';
 import { ingestJobs } from './jobs/ingestJobs';
-import pLimit from 'p-limit';
+import matchRouter from './routes/matchRoute';
+import cors from 'cors';
+import jobsRouter from './routes/jobsRouter';
+import applicationRouter from './routes/applicationRoute';
+import mostInDemandSkills from './routes/stats/most-in-demand-skills';
+import regionalSkills from './routes/stats/regional-skills';
+import skillTrend from './routes/stats/skill-trend';
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send('Welcome to the backend API! Try POST /extract or GET /health');
 });
 
+//Mount JobMacher route 
+app.use('/api', matchRouter);
+
+//Application route 
+app.use('/api/application', applicationRouter);
+
+
 // Mount resume routes under /api/resume
 app.use('/api/resume', resumeRouter);
+
+//UI Job ingest
+app.use('/api/jobs', jobsRouter);
+
+
+// Mount skill analysis/statistics routes
+app.use('/api/stats/most-in-demand-skills', mostInDemandSkills);
+app.use('/api/stats/regional-skills', regionalSkills);
+app.use('/api/stats/skill-trend', skillTrend);
+
 
 // Simple health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
+
+
 
 app.post('/api/jobs/ingest', async (req, res) => {
     try {
@@ -31,28 +57,6 @@ app.post('/api/jobs/ingest', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Job ingestion failed.' });
     }
 });
-
-// Example fetchJobs function you can import and call when needed
-export async function fetchJobs() {
-    const response = await fetch(
-        'https://jsearch.p.rapidapi.com/search?query=software+engineer',
-        {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
-                'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
-            },
-        }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.message || 'Fetch failed');
-    }
-
-    return data;
-}
 
 const PORT = process.env.PORT || 8000;
 

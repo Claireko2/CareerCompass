@@ -5,7 +5,6 @@ import { ParsedResume } from '../resume/parser';
 export async function saveResumeToDb(parsed: ParsedResume) {
     const resume = await prisma.resume.create({
         data: {
-            name: parsed.name,
             email: parsed.email,
             phone: parsed.phone,
             rawText: parsed.raw_text,

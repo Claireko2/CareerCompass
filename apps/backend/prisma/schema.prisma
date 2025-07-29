@@ -1,22 +1,12 @@
-// JS Client (Optional, only if using in Node.js)
 generator client {
   provider = "prisma-client-js"
 }
 
-// Python Prisma Client
-generator client_python {
-  provider             = "prisma-client-py"
-  recursive_type_depth = -1
-  output               = "../src/generated"
-}
-
-// Data source block
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// ---------- NORMALISED DOMAIN MODELS ----------
 model Company {
   id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String       @unique
@@ -38,61 +28,52 @@ model Location {
   @@index([city, region, country])
 }
 
-// ---------- JOB POSTINGS ----------
 model JobPosting {
-  id               String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jobId            String @unique
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId            String     @unique
   title            String
-  description      String @db.Text
+  description      String
+  postedAt         DateTime?
+  scrapedAt        DateTime   @default(now())
+  url              String
+  updatedAt        DateTime   @updatedAt
+  companyId        String     @db.Uuid
+  locationId       String     @db.Uuid
+  benefits         Json?
   qualifications   Json?
   responsibilities Json?
-  benefits         Json?
-
-  postedAt  DateTime?
-  scrapedAt DateTime  @default(now())
-  url       String
-  updatedAt DateTime  @updatedAt
-
-  // relations
-  company    Company    @relation(fields: [companyId], references: [id])
-  companyId  String     @db.Uuid
-  location   Location   @relation(fields: [locationId], references: [id])
-  locationId String     @db.Uuid
-  skills     JobSkill[]
+  company          Company    @relation(fields: [companyId], references: [id])
+  location         Location   @relation(fields: [locationId], references: [id])
+  skills           JobSkill[]
+  applications Application[]
 
   @@index([companyId])
   @@index([locationId])
 }
 
-// ---------- SKILLS & M:N JOIN ----------
 model Skill {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  label       String
-  altLabels   Json?     @map("alt_labels")
-  skill_type  String?
-  status      String?
-  modified_at DateTime? @db.Timestamp(6)
-  description String?
-
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  label            String
+  altLabels        Json?             @map("alt_labels")
+  skill_type       String?
+  status           String?
+  modified_at      DateTime?         @db.Timestamp(6)
+  description      String?
   skillsInJobs     JobSkill[]
   occupationSkills OccupationSkill[]
 
   @@map("esco_skills")
-  schemas  = ["core"]
 }
 
 model JobSkill {
-  jobId   String @db.Uuid
-  skillId String @db.Uuid
-
-  job   JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  skill Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  jobId   String     @db.Uuid
+  skillId String     @db.Uuid
+  job     JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill   Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([jobId, skillId])
   @@index([skillId])
 }
-
-// ---------- OCCUPATION ----------
 
 model Occupation {
   id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -103,32 +84,45 @@ model Occupation {
 }
 
 model OccupationSkill {
-  occupationId String   @db.Uuid
-  skillId      String    @db.Uuid
+  occupationId String     @db.Uuid
+  skillId      String     @db.Uuid
   relationType String?
   skillType    String?
-
-  occupation Occupation @relation(fields: [occupationId], references: [id], onDelete: Cascade)
-  skill      Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  occupation   Occupation @relation(fields: [occupationId], references: [id], onDelete: Cascade)
+  skill        Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([occupationId, skillId])
 }
 
 model Resume {
-  id        String         @id @default(uuid())
-  name      String?
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email     String?
   phone     String?
   rawText   String
-  createdAt DateTime       @default(now())
-  skills    ResumeSkill[]  // One-to-many
+  createdAt DateTime      @default(now())
+  skills    ResumeSkill[]
+  applications Application[]
 }
 
 model ResumeSkill {
-  id               String   @id @default(uuid())
-  resume           Resume   @relation(fields: [resumeId], references: [id])
-  resumeId         String
+  id               String  @id @default(uuid())
+  resumeId         String  @db.Uuid
   skillName        String
   canonicalSkillId String?
   source           String
+  resume           Resume  @relation(fields: [resumeId], references: [id])
+}
+
+model Application {
+  id          String    @id @default(uuid())
+  resumeId    String    @db.Uuid
+  jobPostingId String   @db.Uuid
+  appliedDate DateTime?
+  status      String    @default("Not Applied")
+  note        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  resume      Resume    @relation(fields: [resumeId], references: [id])
+  jobPosting  JobPosting @relation(fields: [jobPostingId], references: [id])
 }

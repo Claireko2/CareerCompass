@@ -9,7 +9,7 @@ import { extractSkills, CanonicalSkill } from '../utils/extractSkills';
 import { getCachedSkills } from '../utils/skillCache';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
-import pLimit from 'p-limit';  // 直接靜態 import p-limit@2
+import pLimit from 'p-limit';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +27,7 @@ export async function ingestJobs() {
 
     const canonicalSkills: CanonicalSkill[] = await getCachedSkills();
 
-    const categories = ['software engineer', 'data scientist', 'product manager'];
+    const categories = ['software engineer', 'data scientist', 'data analyst'];
 
     const rawDir = './raw';
     if (!existsSync(rawDir)) {
@@ -51,7 +51,7 @@ export async function ingestJobs() {
 
             console.log(`Fetched ${jobs.length} jobs for category "${category}"`);
 
-            // 用 p-limit 控制並發數量
+
             const limit = pLimit(5);
 
             const tasks = jobs.map((job) =>
@@ -126,4 +126,79 @@ if (require.main === module) {
             console.error('❌ Ingestion failed:', err);
             process.exit(1);
         });
+}
+
+export async function ingestJobsByCategory(category: string) {
+    logger.info(`Starting ingestion for category: ${category}`);
+
+    const canonicalSkills: CanonicalSkill[] = await getCachedSkills();
+    const rawDir = './raw';
+    if (!existsSync(rawDir)) {
+        mkdirSync(rawDir);
+    }
+
+    try {
+        const res = await axios.get('https://jsearch.p.rapidapi.com/search', {
+            params: { query: category, page: 1, num_pages: 3 },
+            headers: {
+                'X-RapidAPI-Key': env.JSEARCH_API_KEY,
+                'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
+            },
+            timeout: 15_000,
+        });
+
+        const jobs = res.data.data as any[];
+
+        writeFileSync(`./raw/jsearch-${category.replace(/\s+/g, '-')}-${Date.now()}.json`, JSON.stringify(jobs, null, 2));
+
+        console.log(`Fetched ${jobs.length} jobs for category "${category}"`);
+
+        const limit = pLimit(5);
+        const tasks = jobs.map((job) =>
+            limit(async () => {
+                const jobStart = Date.now();
+                try {
+                    const rawText = `${job.job_description ?? ''}\n${JSON.stringify(job.job_highlights ?? '')}`;
+                    const cleanedText = cleanJobText(rawText);
+                    const matchedSkills = extractSkills(cleanedText, canonicalSkills);
+                    const skillIds = matchedSkills.map(s => s.canonical_skill_id).filter(Boolean) as string[];
+
+                    const company = await upsertCompany(job.employer_name, job.employer_website);
+                    const location = await upsertLocation(
+                        job.job_city ?? null,
+                        job.job_state ?? null,
+                        job.job_country
+                    );
+
+                    const jobRecord = await upsertJobPosting({
+                        jobId: job.job_id,
+                        title: job.job_title,
+                        description: job.job_description,
+                        qualifications: job.job_highlights?.Qualifications ?? null,
+                        responsibilities: job.job_highlights?.Responsibilities ?? null,
+                        benefits: job.job_highlights?.Benefits ?? null,
+                        postedAt: job.job_posted_at_datetime_utc
+                            ? new Date(job.job_posted_at_datetime_utc)
+                            : undefined,
+                        url: job.job_apply_link,
+                        company,
+                        location,
+                    });
+
+                    await addJobSkills(jobRecord.id, skillIds);
+
+                    const took = ((Date.now() - jobStart) / 1000).toFixed(2);
+                    console.log(`[${job.job_id}] Done in ${took}s. Skills matched: ${skillIds.length}`);
+                } catch (err) {
+                    logger.error(err, `Failed to process job ${job.job_id}`);
+                }
+            })
+        );
+
+        await Promise.all(tasks);
+    } catch (error) {
+        logger.error(error, `Failed to fetch jobs for category "${category}"`);
+    }
+
+    logger.info(`Finished ingestion for category: ${category}`);
 }
