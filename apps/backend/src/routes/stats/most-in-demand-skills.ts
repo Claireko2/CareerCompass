@@ -1,5 +1,4 @@
 // Top 10 most frequent skills
-import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
 
