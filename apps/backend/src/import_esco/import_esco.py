@@ -18,7 +18,7 @@ Base = declarative_base()
 
 class EscoSkill(Base):
     __tablename__ = "esco_skills"
-    __table_args__ = {"schema": "core"}
+    __table_args__ = {"schema": "public"}
 
     id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     label       = Column(Text, nullable=False)

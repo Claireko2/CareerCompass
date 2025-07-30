@@ -1,10 +1,9 @@
 import pandas as pd
 import asyncio
 import uuid
-from prisma import Prisma
-
+from prisma import Client
 async def main():
-    db = Prisma()
+    db = Client()
     await db.connect()
 
     occ_df = pd.read_excel("C:/Users/colle/Desktop/Project/JobSearch/career-compass/apps/backend/src/import_onet/Occupation Data.xlsx")

@@ -1,8 +1,15 @@
 // ---------- GENERATOR & DATASOURCE ----------
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-py"
 }
 
+generator client_python {
+  provider = "prisma-client-py"
+}
+generator db {
+  provider = "prisma-client-py"
+  output   = "prisma"
+}
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
