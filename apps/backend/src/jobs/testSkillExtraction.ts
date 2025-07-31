@@ -6,7 +6,7 @@ async function loadCanonicalSkillsFromDb(): Promise<CanonicalSkill[]> {
     const skills = await prisma.skill.findMany({
         select: { id: true, label: true },
     });
-    return skills.map(s => ({ id: s.id, name: s.label }));
+    return skills.map((s: { id: string; label: string }) => ({ id: s.id, name: s.label }));
 }
 
 async function test() {
