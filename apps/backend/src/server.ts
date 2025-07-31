@@ -21,12 +21,11 @@ app.get('/', (req, res) => {
     res.send('Welcome to the backend API! Try POST /extract or GET /health');
 });
 
-//Mount JobMacher route 
+//Mount JobMatcher route
 app.use('/api', matchRouter);
 
-//Application route 
+//Application route
 app.use('/api/application', applicationRouter);
-
 
 // Mount resume routes under /api/resume
 app.use('/api/resume', resumeRouter);
@@ -34,19 +33,15 @@ app.use('/api/resume', resumeRouter);
 //UI Job ingest
 app.use('/api/jobs', jobsRouter);
 
-
 // Mount skill analysis/statistics routes
 app.use('/api/stats/most-in-demand-skills', mostInDemandSkills);
 app.use('/api/stats/regional-skills', regionalSkills);
 app.use('/api/stats/skill-trend', skillTrend);
 
-
 // Simple health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-
-
 
 app.post('/api/jobs/ingest', async (req, res) => {
     try {
@@ -58,12 +53,12 @@ app.post('/api/jobs/ingest', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 10000;
+// Listen on environment port or fallback 10000, bind to 0.0.0.0 to allow external access
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 10000;
 
 async function startServer() {
-
-    app.listen(PORT, () => {
-        console.log(`Server listening on http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server listening on http://0.0.0.0:${PORT}`);
     });
 }
 
