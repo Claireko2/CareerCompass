@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function ResumeMatcher() {
     const [file, setFile] = useState<File | null>(null);
     const [jobTitle, setJobTitle] = useState('');
@@ -18,7 +20,7 @@ export default function ResumeMatcher() {
         formData.append('file', file);
 
         try {
-            const res = await fetch('http://localhost:8000/api/resume/upload_resume', {
+            const res = await fetch('${apiBaseUrl}/api/resume/upload_resume', {
                 method: 'POST',
                 body: formData,
             });
@@ -68,7 +70,7 @@ export default function ResumeMatcher() {
             });
             if (location) queryParams.append('location', location);
 
-            const res = await fetch(`http://localhost:8000/api/match?${queryParams.toString()}`);
+            const res = await fetch(`${apiBaseUrl}/api/match?${queryParams.toString()}`);
             const data = await res.json();
             setMatchedJobs(data.matchedJobs || []);
         } catch {
@@ -82,7 +84,7 @@ export default function ResumeMatcher() {
         setAddingJobIds(prev => new Set(prev).add(jobId));
 
         try {
-            const res = await fetch('http://localhost:8000/api/application', {
+            const res = await fetch('${apiBaseUrl}/api/application', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ resumeId, jobPostingId: jobId }),

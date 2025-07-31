@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 export default function JobsPage() {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [category, setCategory] = useState('');
     const [location, setLocation] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ export default function JobsPage() {
         setLoading(true);
 
         // Step 1: Ingest new jobs
-        await fetch('http://localhost:8000/api/jobs/load', {
+        await fetch('${apiBaseUrl}/api/jobs/load', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ category }),
@@ -28,7 +29,7 @@ export default function JobsPage() {
 
         // Step 2: Fetch jobs from DB
         const res = await fetch(
-            `http://localhost:8000/api/jobs?category=${encodeURIComponent(category)}&location=${encodeURIComponent(location)}`
+            `${apiBaseUrl}/api/jobs?category=${encodeURIComponent(category)}&location=${encodeURIComponent(location)}`
         );
         const data = await res.json();
         setJobs(data.jobs || []);
