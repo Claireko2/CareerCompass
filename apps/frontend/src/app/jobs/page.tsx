@@ -21,7 +21,7 @@ export default function JobsPage() {
         setLoading(true);
 
         // Step 1: Ingest new jobs
-        await fetch('${apiBaseUrl}/api/jobs/load', {
+        await fetch(`${apiBaseUrl}/api/jobs/load`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ category }),

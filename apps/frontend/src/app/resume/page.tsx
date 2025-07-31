@@ -20,7 +20,7 @@ export default function ResumeMatcher() {
         formData.append('file', file);
 
         try {
-            const res = await fetch('${apiBaseUrl}/api/resume/upload_resume', {
+            const res = await fetch(`${apiBaseUrl}/api/resume/upload_resume`, {
                 method: 'POST',
                 body: formData,
             });
@@ -84,7 +84,7 @@ export default function ResumeMatcher() {
         setAddingJobIds(prev => new Set(prev).add(jobId));
 
         try {
-            const res = await fetch('${apiBaseUrl}/api/application', {
+            const res = await fetch(`${apiBaseUrl}/api/application`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ resumeId, jobPostingId: jobId }),

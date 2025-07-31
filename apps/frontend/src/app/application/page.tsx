@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-axios.defaults.baseURL = '${apiBaseUrl}';
+axios.defaults.baseURL = `${apiBaseUrl}`;
 
 type Application = {
     id: string;
@@ -30,7 +30,7 @@ export default function ApplicationPage() {
     const [statusEdit, setStatusEdit] = useState('');
 
     const fetchApplications = async () => {
-        const res = await axios.get('${apiBaseUrl}/api/application/all');
+        const res = await axios.get(`${apiBaseUrl}/api/application/all`);
         setApplications(res.data);
     };
 
