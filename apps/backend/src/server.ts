@@ -58,7 +58,7 @@ app.post('/api/jobs/ingest', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 10000;
 
 async function startServer() {
 
