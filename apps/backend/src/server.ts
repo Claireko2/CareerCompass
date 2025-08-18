@@ -10,6 +10,8 @@ import applicationRouter from './routes/applicationRoute';
 import mostInDemandSkills from './routes/stats/most-in-demand-skills';
 import regionalSkills from './routes/stats/regional-skills';
 import skillTrend from './routes/stats/skill-trend';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 dotenv.config();
 
@@ -54,12 +56,27 @@ app.post('/api/jobs/ingest', async (req, res) => {
 });
 
 // Listen on environment port or fallback 10000, bind to 0.0.0.0 to allow external access
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 10000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8000;
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 async function startServer() {
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server listening on http://0.0.0.0:${PORT}`);
-    });
+    try {
+        await prisma.$connect();
+        console.log('DB connected');
+        app.listen(PORT, '127.0.0.1', () => {
+            console.log(`Server listening on 127.0.0.1:${PORT}`);
+        });
+    } catch (err) {
+        console.error('DB connection error:', err);
+        process.exit(1);
+    }
 }
 
 startServer();

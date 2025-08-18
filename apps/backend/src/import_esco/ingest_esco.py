@@ -24,46 +24,53 @@ def extract_uuid(uri: str) -> str:
     return uri.rstrip("/").split("/")[-1]
 
 def create_schema(engine):
-    meta = MetaData()
+    # 指定 schema 為 core
+    meta = MetaData(schema="public")
 
+    # 表名和 Prisma schema 對齊，且 schema 也設為 core
     occupations = Table(
-        "occupations",
+        "occupation",  # Prisma model 名稱沒 @@map，表名為 Occupation（大小寫敏感）
         meta,
         Column("id", String, primary_key=True),
         Column("uri", String, unique=True, nullable=False),
         Column("preferred_label", String, nullable=True),
+        schema="public"
     )
 
     skills = Table(
-        "skills",
+        "esco_skills",  # Prisma Skill model @@map("esco_skills")
         meta,
         Column("id", String, primary_key=True),
         Column("uri", String, unique=True, nullable=False),
         Column("preferred_label", String, nullable=True),
+        schema="public"
     )
 
     skill_aliases = Table(
         "skill_aliases",
         meta,
-        Column("skill_id", String, ForeignKey("skills.id", ondelete="CASCADE")),
+        Column("skill_id", String, ForeignKey("esco_skills.id", ondelete="CASCADE")),
         Column("alias", String, primary_key=True),
+        schema="public"
     )
 
     occupation_skills = Table(
         "occupation_skills",
         meta,
-        Column("occupation_id", String, ForeignKey("occupations.id", ondelete="CASCADE")),
-        Column("skill_id", String, ForeignKey("skills.id", ondelete="CASCADE")),
+        Column("occupation_id", String, ForeignKey("Occupation.id", ondelete="CASCADE")),
+        Column("skill_id", String, ForeignKey("esco_skills.id", ondelete="CASCADE")),
         Column("relation_type", Enum(*RELATION_TYPES, name="relation_type")),
         Column("skill_type", Enum(*SKILL_TYPES, name="skill_type")),
         PrimaryKeyConstraint("occupation_id", "skill_id"),
+        schema="public"
     )
 
-    meta.create_all(engine)
+    meta.create_all(engine)  # 建立表格（如果還沒建立）
     print(
-    f"Connecting to postgresql+psycopg2://{os.getenv('PGUSER')}@"
-    f"{os.getenv('PGHOST')}:{os.getenv('PGPORT')}/{os.getenv('PGDATABASE')}"
-)
+        f"Connecting to postgresql+psycopg2://{os.getenv('PGUSER')}@"
+        f"{os.getenv('PGHOST')}:{os.getenv('PGPORT')}/{os.getenv('PGDATABASE')}"
+    )
+    print("Tables in metadata:", meta.tables.keys())
     return meta
 
 def bulk_upsert(table: Table, rows: list[dict], engine, key_cols: list[str], batch_size: int = 1000):
@@ -96,12 +103,14 @@ def main(mapping_file: str):
     )
 
     meta = create_schema(engine)
-    occ_tbl = meta.tables["occupations"]
-    skill_tbl = meta.tables["skills"]
-    occ_skill_tbl = meta.tables["occupation_skills"]
+
+    # 注意：key 要和 meta.tables 裡的 keys 一致（大小寫）
+    occ_tbl = meta.tables["public.occupation"]
+    skill_tbl = meta.tables["public.esco_skills"]
+    occ_skill_tbl = meta.tables["public.occupation_skills"]
 
     # 讀取TSV檔，注意分隔符號是 tab
-    mapping = pd.read_csv(mapping_file) 
+    mapping = pd.read_csv(mapping_file)  
     mapping = mapping.rename(
         columns={
             "occupationUri": "occupation_uri",

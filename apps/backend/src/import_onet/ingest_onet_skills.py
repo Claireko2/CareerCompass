@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import asyncio
 from prisma import Prisma
+from datetime import datetime
 
 async def main():
     db = Prisma()
@@ -18,9 +19,11 @@ async def main():
     count = 0
     for _, row in df.iterrows():
         label = row["label"]
-        description = row.get("description", "")
+        description = row.get("description", "") or ""
         skill_type = "cognitive"
         status = "released"
+        alt_labels = []  # 預設空列表，符合 JSONB
+        modified_at = None  # 如果有修改時間，可以填這裡，沒有就 None
 
         existing = await db.skill.find_first(where={"label": label})
 
@@ -31,6 +34,8 @@ async def main():
                     "description": description,
                     "skill_type": skill_type,
                     "status": status,
+                    "altLabels": alt_labels,
+                    "modified_at": modified_at,
                 }
             )
         else:
@@ -40,6 +45,8 @@ async def main():
                     "description": description,
                     "skill_type": skill_type,
                     "status": status,
+                    "altLabels": alt_labels,
+                    "modified_at": modified_at,
                 }
             )
         count += 1
