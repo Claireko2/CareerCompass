@@ -42,32 +42,6 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
 - **External APIs**: Indeed, Adzuna (job data ingestion)  
 
 ---
-
-## Installation & Setup
-
-### Prerequisites
-- Node.js (>=18.x)  
-- Python (>=3.10)  
-- PostgreSQL (>=14.x)  
-- Power BI Desktop (optional, for local dashboards)  
-
-### 1. Clone the repository
-        git clone https://github.com/yourusername/career-compass.git
-        cd career-compass
-
-### 2. Install backend
-        cd backend
-        npm install
-        npx prisma migrate dev
-        npm run dev
-
-### 3. Install frontend
-        cd ../frontend
-        npm install
-        npm run dev
-### 4. Run data pipeline (ESCO/O*NET ingestion + NLP matching)
-        python ingest_onet.py
-        python ingest_esco.py
         
 ## Deployment
 - **Frontend**: Vercel (Next.js React app)
