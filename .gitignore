@@ -19,3 +19,8 @@ venv/
 *.tsv
 raw/
 extractor/skill_alias_map.json
+
+#venv
+.venv/
+venv/
+ENV/

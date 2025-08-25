@@ -34,8 +34,14 @@ export async function ingestJobs() {
         mkdirSync(rawDir);
     }
 
-    for (const category of categories) {
+    for (let category of categories) {
+        if (!category || category.trim().length === 0) {
+            logger.warn('Empty category detected, using default "software engineer".');
+            category = 'software engineer';
+        }
+
         try {
+            logger.info(`Starting ingestion for category: ${category}`);
             const res = await axios.get('https://jsearch.p.rapidapi.com/search', {
                 params: { query: category, page: 1, num_pages: 1 },
                 headers: {
@@ -128,8 +134,8 @@ if (require.main === module) {
         });
 }
 
-export async function ingestJobsByCategory(category: string) {
-    logger.info(`Starting ingestion for category: ${category}`);
+export async function ingestJobsByCategory(category: string, datePosted: 'all' | 'today' | '3days' | 'week' | 'month' = 'all') {
+    logger.info(`Starting ingestion for category: ${category} with date_posted: ${datePosted}`);
 
     const canonicalSkills: CanonicalSkill[] = await getCachedSkills();
     const rawDir = './raw';
@@ -139,7 +145,12 @@ export async function ingestJobsByCategory(category: string) {
 
     try {
         const res = await axios.get('https://jsearch.p.rapidapi.com/search', {
-            params: { query: category, page: 1, num_pages: 3 },
+            params: {
+                query: category,
+                page: 1,
+                num_pages: 3,
+                date_posted: datePosted,  // <-- added optional filter
+            },
             headers: {
                 'X-RapidAPI-Key': env.JSEARCH_API_KEY,
                 'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
@@ -149,9 +160,12 @@ export async function ingestJobsByCategory(category: string) {
 
         const jobs = res.data.data as any[];
 
-        writeFileSync(`./raw/jsearch-${category.replace(/\s+/g, '-')}-${Date.now()}.json`, JSON.stringify(jobs, null, 2));
+        writeFileSync(
+            `./raw/jsearch-${category.replace(/\s+/g, '-')}-${datePosted}-${Date.now()}.json`,
+            JSON.stringify(jobs, null, 2)
+        );
 
-        console.log(`Fetched ${jobs.length} jobs for category "${category}"`);
+        console.log(`Fetched ${jobs.length} jobs for category "${category}" with date_posted "${datePosted}"`);
 
         const limit = pLimit(5);
         const tasks = jobs.map((job) =>
@@ -200,5 +214,5 @@ export async function ingestJobsByCategory(category: string) {
         logger.error(error, `Failed to fetch jobs for category "${category}"`);
     }
 
-    logger.info(`Finished ingestion for category: ${category}`);
+    logger.info(`Finished ingestion for category: ${category} with date_posted: ${datePosted}`);
 }

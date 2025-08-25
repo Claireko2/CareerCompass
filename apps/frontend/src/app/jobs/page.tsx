@@ -18,6 +18,7 @@ interface Job {
     description?: string;
     company?: JobCompany;
     location?: JobLocation;
+    postedAt: string;
     updatedAt: string;
     salary?: string;
     jobType?: string;
@@ -27,6 +28,7 @@ export default function JobsPage() {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [category, setCategory] = useState('');
     const [location, setLocation] = useState('');
+    const [datePosted, setDatePosted] = useState<'all' | 'today' | '3days' | 'week' | 'month'>('all'); // new state
     const [loading, setLoading] = useState(false);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [expandedJobIds, setExpandedJobIds] = useState<string[]>([]);
@@ -39,8 +41,6 @@ export default function JobsPage() {
     };
 
     const handleLoadJobs = async () => {
-        if (!category.trim()) return;
-
         setLoading(true);
         setSearchPerformed(true);
 
@@ -49,7 +49,7 @@ export default function JobsPage() {
             await fetch(`${apiBaseUrl}/api/jobs/load`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category }),
+                body: JSON.stringify({ category, date_posted: datePosted }),
             });
 
             // Step 2: Fetch jobs from DB
@@ -111,95 +111,62 @@ export default function JobsPage() {
                 <div className="max-w-4xl">
                     <h2 className="text-xl font-semibold text-slate-900 mb-6">Search Job Opportunities</h2>
 
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div className="grid md:grid-cols-3 gap-6 mb-6">
+                        {/* Job Category */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-700">Job Category *</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="e.g., Data Analyst, Software Engineer, Product Manager"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-12"
-                                    disabled={loading}
-                                />
-                                <svg className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2h2a2 2 0 002-2v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2z" />
-                                </svg>
-                            </div>
+                            <input
+                                type="text"
+                                placeholder="e.g., Data Analyst, Software Engineer"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={loading}
+                            />
                         </div>
 
+                        {/* Location */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-700">Location (Optional)</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="e.g., Vancouver, Toronto, Remote"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-12"
-                                    disabled={loading}
-                                />
-                                <svg className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            </div>
+                            <input
+                                type="text"
+                                placeholder="e.g., Vancouver, Toronto, Remote"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={loading}
+                            />
+                        </div>
+
+                        {/* Date Posted Dropdown */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Date Posted</label>
+                            <select
+                                value={datePosted}
+                                onChange={(e) => setDatePosted(e.target.value as any)}
+                                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={loading}
+                            >
+                                <option value="all">All</option>
+                                <option value="today">Today</option>
+                                <option value="3days">Last 3 days</option>
+                                <option value="week">Last week</option>
+                                <option value="month">Last month</option>
+                            </select>
                         </div>
                     </div>
 
+                    {/* Buttons */}
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={handleLoadJobs}
-                                disabled={loading || !category.trim()}
-                                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {loading ? (
-                                    <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Searching Jobs...
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                        Search Jobs
-                                    </>
-                                )}
-                            </button>
-
-                            {searchPerformed && !loading && (
-                                <button
-                                    onClick={() => {
-                                        setJobs([]);
-                                        setCategory('');
-                                        setLocation('');
-                                        setSearchPerformed(false);
-                                        setExpandedJobIds([]);
-                                    }}
-                                    className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors"
-                                >
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Clear Search
-                                </button>
-                            )}
-                        </div>
-
-                        {searchPerformed && jobs.length > 0 && (
-                            <div className="text-sm text-slate-600">
-                                Found <span className="font-semibold text-slate-900">{jobs.length}</span> jobs for "{category}"
-                                {location && ` in ${location}`}
-                            </div>
-                        )}
+                        <button
+                            onClick={handleLoadJobs}
+                            disabled={loading}
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {loading ? 'Searching Jobs...' : 'Search Jobs'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -266,7 +233,7 @@ export default function JobsPage() {
                                                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
-                                                            Updated {formatDate(job.updatedAt)}
+                                                            Posted {formatDate(job.updatedAt)}
                                                         </div>
                                                     </div>
                                                     {job.salary && (
@@ -321,3 +288,4 @@ export default function JobsPage() {
         </div>
     );
 }
+
