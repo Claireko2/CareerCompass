@@ -37,9 +37,9 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
 - **Languages/Frameworks**: Python, Node.js, Express, Next.js, React  
 - **Database/ORM**: PostgreSQL, Prisma  
 - **Data Analysis**: Pandas, NumPy, Scikit-learn  
-- **Visualization**: Power BI, Plotly, Chart.js  
+- **Visualization**: Power BI
 - **NLP**: n-gram analysis for resume/job description similarity  
-- **External APIs**: Indeed, Adzuna (job data ingestion)  
+- **External APIs**: Rapid API, Jsearch API (job data ingestion)  
 
 ---
         
