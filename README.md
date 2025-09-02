@@ -1,3 +1,5 @@
+<img width="1897" height="903" alt="image" src="https://github.com/user-attachments/assets/9349d169-6d71-440d-bb3d-e2a7fde19f04" />
+
 # Career Compass
 
 Career Compass is a smart job tracking and analytics application designed for **Data Analysts** and **Developers**.  
