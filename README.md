@@ -19,7 +19,7 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
   - Adapts recommendations based on user history  
 
 - **Data Pipeline**  
-  - Ingestion of **ESCO** and **O\*NET** skill/occupation datasets  
+  - Ingestion of **ESCO** skill/occupation datasets  
   - Normalized storage in **PostgreSQL** via **Prisma ORM**  
 
 - **Market Analysis Dashboard**  
