@@ -190,10 +190,10 @@ export default function JobsPage() {
                             <br />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No jobs found</h3>
                             <p className="text-slate-600 mb-4">
-                                We couldn't find any jobs matching your search criteria. Try adjusting your search terms or location.
+                                We could not find any jobs matching your search criteria. Try adjusting your search terms or location.
                             </p>
                             <div className="space-y-2 text-sm text-slate-600">
-                                <p>• Try broader job categories (e.g., "Software" instead of "Senior Software Engineer")</p>
+                                <p>• Try broader job categories (e.g., Software instead of  Senior Software Engineer )</p>
                                 <p>• Remove location filters to see remote opportunities</p>
                                 <p>• Check for spelling errors in your search terms</p>
                             </div>
@@ -288,4 +288,5 @@ export default function JobsPage() {
         </div>
     );
 }
+
 
