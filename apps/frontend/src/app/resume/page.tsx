@@ -363,15 +363,16 @@ export default function ResumeMatcher() {
                         <h2 className="text-lg font-semibold text-slate-900 mb-2">Upload Your Resume</h2>
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <label className="flex-1">
+                               <label htmlFor="resumeFile" className="flex-1">
+                                    Upload Resume
                                     <input
-                                        type="file"
-                                        name="file" 
                                         id="resumeFile"
+                                        type="file"
+                                        name="file"           
                                         onChange={(e) => setFile(e.target.files?.[0] || null)}
                                         accept=".pdf,.doc,.docx"
                                         className="block w-full text-sm text-slate-500 file:mr-4 ..."
-                                      />
+                                    />
                                 </label>
                                 <button
                                     onClick={uploadResume}
@@ -498,3 +499,4 @@ export default function ResumeMatcher() {
     );
 
 }
+
