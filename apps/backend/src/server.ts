@@ -61,7 +61,7 @@ app.post('/api/jobs/ingest', async (req, res) => {
 });
 
 // Listen on environment port or fallback 10000, bind to 0.0.0.0 to allow external access
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8000;
+const PORT = process.env.PORT;
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
@@ -85,4 +85,5 @@ async function startServer() {
 }
 
 startServer();
+
 
