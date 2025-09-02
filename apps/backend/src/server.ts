@@ -1,100 +1,88 @@
 import 'cross-fetch/polyfill'; // Polyfill fetch globally in Node.js
 import dotenv from 'dotenv';
 import express from 'express';
-import resumeRouter from './routes/resumeUpload';
-import { ingestJobs } from './jobs/ingestJobs';
-import matchRouter from './routes/matchRoute';
 import cors from 'cors';
+import { PrismaClient } from '@prisma/client';
+
+// Routes
+import resumeRouter from './routes/resumeUpload';
+import matchRouter from './routes/matchRoute';
 import jobsRouter from './routes/jobsRouter';
 import applicationRouter from './routes/applicationRoute';
 import mostInDemandSkills from './routes/stats/most-in-demand-skills';
 import regionalSkills from './routes/stats/regional-skills';
 import skillTrend from './routes/stats/skill-trend';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+
+// Jobs ingestion
+import { ingestJobs } from './jobs/ingestJobs';
 
 dotenv.config();
 
 const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8000;
+
+// Middleware
 app.use(cors({
-  origin: "https://career-compass-frontend-hazel.vercel.app", 
+  origin: "https://career-compass-frontend-hazel.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Welcome to the backend API! Try POST /extract or GET /health');
+// Base route
+app.get('/', (_req, res) => {
+  res.send('Welcome to the Career Compass backend API!');
 });
 
-//Mount JobMatcher route
-app.use('/api', matchRouter);
-
-app.get('/api/hello', (req, res) => {
-  res.json({ msg: 'Hello from Render!' });
+// Simple health check
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
 });
 
-//Application route
+// Debug/test route
+app.get('/api/test', (_req, res) => {
+  res.json({ msg: 'API is live!' });
+});
+
+// Mount routes
+app.use('/api', matchRouter); // /api/match
 app.use('/api/application', applicationRouter);
-
-// Mount resume routes under /api/resume
 app.use('/api/resume', resumeRouter);
-
-//UI Job ingest
 app.use('/api/jobs', jobsRouter);
-
-// Mount skill analysis/statistics routes
 app.use('/api/stats/most-in-demand-skills', mostInDemandSkills);
 app.use('/api/stats/regional-skills', regionalSkills);
 app.use('/api/stats/skill-trend', skillTrend);
 
-// Simple health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+// Job ingestion endpoint
+app.post('/api/jobs/ingest', async (_req, res) => {
+  try {
+    await ingestJobs();
+    res.json({ status: 'success', message: 'Job ingestion completed.' });
+  } catch (err) {
+    console.error('Ingestion error:', err);
+    res.status(500).json({ status: 'error', message: 'Job ingestion failed.' });
+  }
 });
 
-app.post('/api/jobs/ingest', async (req, res) => {
-    try {
-        await ingestJobs();
-        res.json({ status: 'success', message: 'Job ingestion completed.' });
-    } catch (err) {
-        console.error('Ingestion error:', err);
-        res.status(500).json({ status: 'error', message: 'Job ingestion failed.' });
-    }
-});
+// Global error handling for uncaught exceptions/rejections
+process.on('uncaughtException', (err) => console.error('Uncaught Exception:', err));
+process.on('unhandledRejection', (reason, promise) =>
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+);
 
-// Listen on environment port or fallback 10000, bind to 0.0.0.0 to allow external access
-const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 8000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
+// Start server after DB connection
 async function startServer() {
-    try {
-        await prisma.$connect();
-        console.log('DB connected');
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server listening on 0.0.0.0:${PORT}`);
-        });
-    } catch (err) {
-        console.error('DB connection error:', err);
-        process.exit(1);
-    }
+  try {
+    await prisma.$connect();
+    console.log('DB connected successfully');
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server listening on 0.0.0.0:${PORT}`);
+    });
+  } catch (err) {
+    console.error('DB connection error:', err);
+    process.exit(1);
+  }
 }
 
 startServer();
-
-
-
-
-
