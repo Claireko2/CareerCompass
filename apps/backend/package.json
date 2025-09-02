@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "start": "node dist/main.js",
+    "node dist/server.js",
     "build": "npm run clean && npx prisma generate && tsc -b",
     "clean": "rimraf dist node_modules/.tmp",
     "lint": "eslint .",
