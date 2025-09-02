@@ -203,7 +203,7 @@ export default function JobsPage() {
                                 We could not find any jobs matching your search criteria. Try adjusting your search terms or location.
                             </p>
                             <div className="space-y-2 text-sm text-slate-600">
-                                <p>• Try broader job categories (e.g., "Software" instead of "Senior Software Engineer")</p>
+                                <p>• Try broader job categories (e.g., Software instead of Senior Software Engineer)</p>
                                 <p>• Remove location filters to see remote opportunities</p>
                                 <p>• Check for spelling errors in your search terms</p>
                             </div>
@@ -298,5 +298,6 @@ export default function JobsPage() {
         </div>
     );
 }
+
 
 
