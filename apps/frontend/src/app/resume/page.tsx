@@ -366,10 +366,12 @@ export default function ResumeMatcher() {
                                 <label className="flex-1">
                                     <input
                                         type="file"
+                                        name="file" 
+                                        id="resumeFile"
                                         onChange={(e) => setFile(e.target.files?.[0] || null)}
                                         accept=".pdf,.doc,.docx"
-                                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
-                                    />
+                                        className="block w-full text-sm text-slate-500 file:mr-4 ..."
+                                      />
                                 </label>
                                 <button
                                     onClick={uploadResume}
@@ -494,4 +496,5 @@ export default function ResumeMatcher() {
             )}
         </div>
     );
+
 }
