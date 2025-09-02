@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 // Mount routers
 app.use('/api/jobs', jobsRouter);
 app.use('/api/application', applicationRouter);
-app.use('/api/resume/upload', resumeUploadRouter);
+app.use('/api/resume', resumeUploadRouter);
 app.use('/api/resume/match', resumeMatchRouter);
 
 // Health check
