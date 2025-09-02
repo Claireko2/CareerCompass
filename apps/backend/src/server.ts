@@ -31,6 +31,10 @@ app.get('/', (req, res) => {
 //Mount JobMatcher route
 app.use('/api', matchRouter);
 
+app.get('/api/hello', (req, res) => {
+  res.json({ msg: 'Hello from Render!' });
+});
+
 //Application route
 app.use('/api/application', applicationRouter);
 
@@ -89,6 +93,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
