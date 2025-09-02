@@ -61,7 +61,7 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
 - Real-time labor market updates with streaming APIs
 - User profile personalization with reinforcement learning
 - Market Analysis Dashboard (skill decay/inflation)
-- Company/Role-Level Analysis (clustering, NLP topic modeling) 
+- Company/Role-Level Analysis (clustering, NLP topic modeling)   
         
 
 
