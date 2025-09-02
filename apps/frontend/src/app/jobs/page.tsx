@@ -181,22 +181,26 @@ export default function JobsPage() {
 
                     </div>
 
-                    {jobs.length === 0 ? (
+                    {loading ? (
+                        // Show loading message while fetching
+                        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+                            <svg className="w-16 h-16 text-blue-400 animate-spin mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                            </svg>
+                            <h3 className="text-lg font-medium text-slate-900 mb-2">Please wait...</h3>
+                            <p className="text-slate-600">Fetching the latest jobs for you.</p>
+                        </div>
+                    ) : jobs.length === 0 ? (
+                        // Only show when NOT loading
                         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
                             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2h2a2 2 0 002-2v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m8 0v2a2 2 0 002 2h2a2 2 0 002-2v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2z" />
                             </svg>
-                            <br />
-                            <br />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No jobs found</h3>
                             <p className="text-slate-600 mb-4">
-                                We couldn't find any jobs matching your search criteria. Try adjusting your search terms or location.
+                                We could not find any jobs matching your search criteria. Try adjusting your search terms or location.
                             </p>
-                            <div className="space-y-2 text-sm text-slate-600">
-                                <p>• Try broader job categories (e.g., "Software" instead of "Senior Software Engineer")</p>
-                                <p>• Remove location filters to see remote opportunities</p>
-                                <p>• Check for spelling errors in your search terms</p>
-                            </div>
                         </div>
                     ) : (
                         <div className="grid gap-6">

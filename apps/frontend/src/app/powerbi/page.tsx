@@ -39,20 +39,7 @@ export default function PowerBIReportPage() {
                     <h1 className="text-3xl font-bold text-slate-900">Career Analytics Dashboard</h1>
                     <p className="text-slate-600 mt-2">Comprehensive insights into your job search progress and market trends</p>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button className="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                        </svg>
-                        Export Data
-                    </button>
-                    <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
-                        Share Report
-                    </button>
-                </div>
+
             </div>
 
             {/* Key Metrics Cards */}
@@ -127,8 +114,8 @@ export default function PowerBIReportPage() {
                                 key={key}
                                 onClick={() => setActiveTab(key as 'pdf' | 'interactive')}
                                 className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors ${activeTab === key
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                                     }`}
                             >
                                 {config.icon}
