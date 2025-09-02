@@ -258,7 +258,7 @@ export default function ApplicationPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
-                                {filteredApps.map((app, index) => (
+                                {filteredApps.map((app) => (
                                     <tr key={app.id} className={`hover:bg-slate-50 transition-colors ${statusConfig[app.status as keyof typeof statusConfig]?.bgColor}`}>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
@@ -361,3 +361,4 @@ export default function ApplicationPage() {
         </div>
     );
 }
+
