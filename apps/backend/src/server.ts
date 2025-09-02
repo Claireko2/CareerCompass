@@ -61,7 +61,14 @@ app.post('/api/jobs/ingest', async (req, res) => {
 });
 
 // Listen on environment port or fallback 10000, bind to 0.0.0.0 to allow external access
-const PORT = process.env.PORT;
+const PORT = process.env.PORT; // use Render's assigned port
+if (!PORT) {
+  console.warn("No PORT specified! Defaulting to 8000 for local dev.");
+}
+
+app.listen(PORT || 8000, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT || 8000}`);
+});
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
@@ -85,5 +92,6 @@ async function startServer() {
 }
 
 startServer();
+
 
 
