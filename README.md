@@ -6,7 +6,7 @@ Career Compass is a smart job tracking and analytics application designed for **
 It combines **job matching algorithms**, **market analysis dashboards**, and **interactive career planning tools** to help users identify skill gaps, prioritize learning, and explore regional labor market trends.
 
 ---
-https://career-compass-frontend-hazel.vercel.app/
+##https://career-compass-frontend-hazel.vercel.app/
 
 ## Features
 
