@@ -171,8 +171,8 @@ export default function ResumeMatcher() {
                     {job.matchScore > 0 && (
                         <div className="text-right">
                             <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${parseFloat(matchPercentage) >= 80 ? 'bg-green-100 text-green-700' :
-                                    parseFloat(matchPercentage) >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-red-100 text-red-700'
+                                parseFloat(matchPercentage) >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-red-100 text-red-700'
                                 }`}>
                                 {matchPercentage}% Match
                             </div>
@@ -317,8 +317,8 @@ export default function ResumeMatcher() {
                             onClick={() => addToApplications(job.jobId, job.url)}
                             disabled={isAdding}
                             className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isAdding
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                         >
                             {isAdding ? (
@@ -366,17 +366,19 @@ export default function ResumeMatcher() {
                                 <label className="flex-1">
                                     <input
                                         type="file"
+                                        name="file"
+                                        id="resumeFile"
                                         onChange={(e) => setFile(e.target.files?.[0] || null)}
                                         accept=".pdf,.doc,.docx"
-                                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
+                                        className="block w-full text-sm text-slate-500 file:mr-4 ..."
                                     />
                                 </label>
                                 <button
                                     onClick={uploadResume}
                                     disabled={!file || uploadProgress}
                                     className={`px-6 py-2 rounded-lg font-medium transition-colors ${!file || uploadProgress
-                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
                                         }`}
                                 >
                                     {uploadProgress ? (
@@ -443,8 +445,8 @@ export default function ResumeMatcher() {
                             onClick={matchJobs}
                             disabled={!resumeId || !jobTitle || loading}
                             className={`inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${!resumeId || !jobTitle || loading
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-green-600 text-white hover:bg-green-700'
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-green-600 text-white hover:bg-green-700'
                                 }`}
                         >
                             {loading ? (

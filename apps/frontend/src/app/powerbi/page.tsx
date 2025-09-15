@@ -7,8 +7,8 @@ export default function PowerBIReportPage() {
     const [pdfLoaded, setPdfLoaded] = useState(false);
     const [powerBiLoaded, setPowerBiLoaded] = useState(false);
 
-    const pdfUrl = "/Career_Compass.pdf";
-    const powerBiUrl = "https://app.powerbi.com/reportEmbed?reportId=57cb8529-041c-4ca1-91b3-e8e5987ea8e1&autoAuth=true&ctid=8322cefd-0a4c-4e2c-bde5-b17933e7b00f";
+    const pdfUrl = "/Career Compass Analysis.pdf";
+    const powerBiUrl = "https://app.powerbi.com/reportEmbed?reportId=bf92dc05-d6c4-4bd1-87ae-73b970c65d4f&autoAuth=true&ctid=8322cefd-0a4c-4e2c-bde5-b17933e7b00f";
 
     const tabConfig = {
         interactive: {

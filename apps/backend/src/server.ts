@@ -16,7 +16,13 @@ const prisma = new PrismaClient();
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "https://career-compass-frontend-hazel.vercel.app",
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+app.options("*", cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -70,7 +76,7 @@ async function startServer() {
     try {
         await prisma.$connect();
         console.log('DB connected');
-        app.listen(PORT, '127.0.0.1', () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server listening on 127.0.0.1:${PORT}`);
         });
     } catch (err) {
