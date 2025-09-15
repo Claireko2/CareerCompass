@@ -23,14 +23,12 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8000;
 
 // Middleware
-app.use(cors({
+app.options("*", cors({
     origin: "https://career-compass-frontend-hazel.vercel.app",
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
-
-app.options("*", cors());
 
 app.use(express.json());
 
