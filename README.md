@@ -1,9 +1,12 @@
+<img width="1897" height="903" alt="image" src="https://github.com/user-attachments/assets/9349d169-6d71-440d-bb3d-e2a7fde19f04" />
+
 # Career Compass
 
 Career Compass is a smart job tracking and analytics application designed for **Data Analysts** and **Developers**.  
 It combines **job matching algorithms**, **market analysis dashboards**, and **interactive career planning tools** to help users identify skill gaps, prioritize learning, and explore regional labor market trends.
 
 ---
+## https://career-compass-frontend-hazel.vercel.app/
 
 ## Features
 
@@ -17,7 +20,7 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
   - Adapts recommendations based on user history  
 
 - **Data Pipeline**  
-  - Ingestion of **ESCO** and **O\*NET** skill/occupation datasets  
+  - Ingestion of **ESCO** skill/occupation datasets  
   - Normalized storage in **PostgreSQL** via **Prisma ORM**  
 
 - **Market Analysis Dashboard**  
@@ -61,7 +64,7 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
 - Real-time labor market updates with streaming APIs
 - User profile personalization with reinforcement learning
 - Market Analysis Dashboard (skill decay/inflation)
-- Company/Role-Level Analysis (clustering, NLP topic modeling)
+- Company/Role-Level Analysis (clustering, NLP topic modeling)   
         
 
 
