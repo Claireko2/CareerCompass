@@ -63,7 +63,7 @@ It combines **job matching algorithms**, **market analysis dashboards**, and **i
 - Deep learning models for semantic skill matching (e.g., BERT embeddings)
 - Real-time labor market updates with streaming APIs
 - User profile personalization with reinforcement learning
-- Market Analysis Dashboard (skill decay/inflation)
+- Market Analysis Dashboard
 - Company/Role-Level Analysis (clustering, NLP topic modeling)   
         
 
